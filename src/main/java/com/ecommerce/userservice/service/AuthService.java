@@ -10,8 +10,18 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpEntity;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
+import java.util.Map;
+import com.ecommerce.userservice.utils.EncryptionUtil;
+import com.ecommerce.userservice.dto.LoginRequest;
 
 @Service
 public class AuthService {
@@ -58,10 +68,12 @@ public class AuthService {
         user.setEmail(email);
         user.setEnabled(true);
 
+        String decryptedPassword = EncryptionUtil.decrypt(password);
+
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setTemporary(false);
         credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(password);
+        credential.setValue(decryptedPassword);
         
         user.setCredentials(Collections.singletonList(credential));
 
@@ -83,6 +95,31 @@ public class AuthService {
         } else {
             System.out.println("Lỗi khi tạo: " + response.getStatusInfo());
             throw new RuntimeException("Tạo tài khoản thất bại trên Identity System! " + response.getStatusInfo());
+        }
+    }
+
+    public Map<String, Object> login(LoginRequest request) {
+        try {
+            String decryptedPassword = EncryptionUtil.decrypt(request.getPassword());
+            
+            String tokenUrl = serverUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+            RestTemplate restTemplate = new RestTemplate();
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            
+            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+            map.add("client_id", clientId);
+            map.add("grant_type", "password");
+            map.add("username", request.getUsername());
+            map.add("password", decryptedPassword);
+            
+            HttpEntity<MultiValueMap<String, String>> keycloakRequest = new HttpEntity<>(map, headers);
+            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, keycloakRequest, Map.class);
+            
+            return response.getBody();
+        } catch (Exception e) {
+            throw new RuntimeException("Đăng nhập thất bại: Tài khoản hoặc mật khẩu không chính xác.");
         }
     }
 }

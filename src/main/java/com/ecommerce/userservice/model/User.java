@@ -38,5 +38,8 @@ public class User extends BaseEntity {
     @Column(name = "keycloak_id", length = 36)
     private String keycloakId;
 
+    @Column(name = "avatar_url", columnDefinition = "TEXT")
+    private String avatarUrl;
+
     // CHÚ Ý: Mật khẩu KHÔNG được lưu ở đây vì Keycloak sẽ quản lý bảo mật.
 }

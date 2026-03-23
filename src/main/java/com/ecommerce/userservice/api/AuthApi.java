@@ -34,4 +34,14 @@ public class AuthApi {
             return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody com.ecommerce.userservice.dto.LoginRequest request) {
+        try {
+            return ResponseEntity.ok(authService.login(request));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(401).body(Collections.singletonMap("message", e.getMessage()));
+        }
+    }
 }
