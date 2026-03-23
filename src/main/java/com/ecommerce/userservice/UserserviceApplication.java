@@ -14,10 +14,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 })
 @EnableFeignClients
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider") // Bật Auditing ở đây
-@EntityScan({
-		"com.ecommerce.userservice.entity", // Quét Entity của project
-		"com.ecommerce.common.audit"        // <--- Quét BaseEntity trong thư viện
-})
 public class UserserviceApplication {
 
 	public static void main(String[] args) {
