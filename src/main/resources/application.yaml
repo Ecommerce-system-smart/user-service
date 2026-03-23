@@ -2,6 +2,8 @@ server:
   port: 8085 # Cổng User Service
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
   application:
     name: user-service # Định danh Eureka
   datasource:
