@@ -30,7 +30,7 @@ eureka:
 
 # Thông tin Keycloak Admin Client
 keycloak:
-  server-url: http://localhost:8180
+  server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8180}
   realm: ecommerce-service
   client-id: auth-service
   client-secret: ${KEYCLOAK_CLIENT_SECRET:secret} # Thay bằng secret cấu hình hoặc fallback

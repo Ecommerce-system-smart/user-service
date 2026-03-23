@@ -31,6 +31,7 @@ public class AuthApi {
             authService.registerUser(username, email, password);
             return ResponseEntity.ok(Collections.singletonMap("message", "Đăng ký thành công!"));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
         }
     }
