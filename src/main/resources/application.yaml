@@ -1,0 +1,56 @@
+server:
+  port: 8085 # Cổng User Service
+
+spring:
+  application:
+    name: user-service # Định danh Eureka
+  datasource:
+    url: jdbc:postgresql://postgres-service:5432/ecommerce_db?currentSchema=user_service
+    username: admin                                
+    password: password                             
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/ecommerce-service # Chú ý đổi tên realm đúng (trước đó là ecommerce-realm)
+          jwk-set-uri: http://localhost:8180/realms/ecommerce-service/protocol/openid-connect/certs
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+# Thông tin Keycloak Admin Client
+keycloak:
+  server-url: http://localhost:8180
+  realm: ecommerce-service
+  client-id: auth-service
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:secret} # Thay bằng secret cấu hình hoặc fallback
+
+# Format log để hiện Trace ID và Span ID
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0 
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus"
+    metrics:
+      tags:
+        application: ${spring.application.name}
