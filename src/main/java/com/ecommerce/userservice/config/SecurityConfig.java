@@ -24,14 +24,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Tắt CSRF nếu cần
+                .csrf(csrf -> csrf.disable()) // Tắt CSRF để cho phép gọi API POST không dùng Token
                 .authorizeHttpRequests(auth -> auth
-                        // --- THÊM DÒNG NÀY ---
-                        .requestMatchers("/actuator/**").permitAll() // Mở cửa cho Prometheus vào
-                        // ---------------------
-                        .anyRequest().authenticated() // Các cái khác vẫn bắt đăng nhập
+                        .requestMatchers("/api/users/register").permitAll() // Mở cửa hoàn toàn cho tính năng Đăng ký
+                        .requestMatchers("/actuator/**").permitAll() // Mở cửa Prometheus
+                        .anyRequest().authenticated() // Cần đăng nhập với mọi api khác
                 )
-                // ... các cấu hình oauth2ResourceServer khác giữ nguyên
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         return http.build();
@@ -45,7 +43,6 @@ public class SecurityConfig {
         // Keycloak thường để tên đăng nhập ở field "preferred_username"
         // Nếu không có dòng này, Spring sẽ lấy ID (dạng UUID) làm username
         converter.setPrincipalClaimName("sid");
-
         return converter;
     }
 }
