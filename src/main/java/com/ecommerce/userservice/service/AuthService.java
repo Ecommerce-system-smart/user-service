@@ -62,7 +62,7 @@ public class AuthService {
         }
 
         Keycloak keycloak = getKeycloakConfig();
-        
+
         UserRepresentation user = new UserRepresentation();
         user.setUsername(username);
         user.setEmail(email);
@@ -74,12 +74,12 @@ public class AuthService {
         credential.setTemporary(false);
         credential.setType(CredentialRepresentation.PASSWORD);
         credential.setValue(decryptedPassword);
-        
+
         user.setCredentials(Collections.singletonList(credential));
 
         // Gọi API của Keycloak
         Response response = keycloak.realm(realm).users().create(user);
-        
+
         if (response.getStatus() == 201) {
             System.out.println("Tạo user trên Keycloak thành công!");
 
@@ -101,22 +101,22 @@ public class AuthService {
     public Map<String, Object> login(LoginRequest request) {
         try {
             String decryptedPassword = EncryptionUtil.decrypt(request.getPassword());
-            
+
             String tokenUrl = serverUrl + "/realms/" + realm + "/protocol/openid-connect/token";
             RestTemplate restTemplate = new RestTemplate();
-            
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            
+
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            map.add("client_id", clientId);
+            map.add("client_id", "ecommerce-ui");
             map.add("grant_type", "password");
             map.add("username", request.getUsername());
             map.add("password", decryptedPassword);
-            
+
             HttpEntity<MultiValueMap<String, String>> keycloakRequest = new HttpEntity<>(map, headers);
             ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, keycloakRequest, Map.class);
-            
+
             return response.getBody();
         } catch (Exception e) {
             throw new RuntimeException("Đăng nhập thất bại: Tài khoản hoặc mật khẩu không chính xác.");

@@ -127,7 +127,7 @@ public class UserProfileService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            map.add("client_id", clientId);
+            map.add("client_id", "ecommerce-ui");
             map.add("grant_type", "password");
             map.add("username", username);
             map.add("password", decryptedOldPassword);
