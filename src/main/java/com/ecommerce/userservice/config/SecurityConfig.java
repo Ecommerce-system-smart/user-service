@@ -26,7 +26,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Tắt CSRF để cho phép gọi API POST không dùng Token
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register").permitAll() // Mở cửa hoàn toàn cho tính năng Đăng ký
+                        .requestMatchers("/api/users/register", "/api/users/login").permitAll() // Mở cửa cho Đăng ký và Đăng nhập proxy
                         .requestMatchers("/actuator/**").permitAll() // Mở cửa Prometheus
                         .anyRequest().authenticated() // Cần đăng nhập với mọi api khác
                 )
