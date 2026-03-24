@@ -118,8 +118,14 @@ public class AuthService {
             ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, keycloakRequest, Map.class);
 
             return response.getBody();
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            String body = e.getResponseBodyAsString();
+            System.err.println("Keycloak Token API Error: " + e.getStatusCode() + " - " + body);
+            throw new RuntimeException("Keycloak Error: " + body);
         } catch (Exception e) {
-            throw new RuntimeException("Đăng nhập thất bại: Tài khoản hoặc mật khẩu không chính xác.");
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Đăng nhập thất bại: Tài khoản hoặc mật khẩu không chính xác. Detail: " + e.getMessage());
         }
     }
 }
