@@ -28,4 +28,21 @@ public class EncryptionUtil {
             throw new RuntimeException("Lỗi giải mã dữ liệu: " + e.getMessage());
         }
     }
+
+    public static String encrypt(String rawText) {
+        if (rawText == null || rawText.isEmpty()) {
+            return rawText;
+        }
+
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+            byte[] encryptedBytes = cipher.doFinal(rawText.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi mã hóa dữ liệu: " + e.getMessage());
+        }
+    }
 }

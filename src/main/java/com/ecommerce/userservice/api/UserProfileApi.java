@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Collections;
+import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ecommerce.userservice.utils.EncryptionUtil;
 
 @RestController
 @RequestMapping("/api/users/profile")
@@ -18,16 +21,25 @@ public class UserProfileApi {
 
     // Lấy thông tin cá nhân
     @GetMapping
-    public ResponseEntity<UserProfileResponse> getProfile() {
-        return ResponseEntity.ok(userProfileService.getMyProfile());
+    public ResponseEntity<Map<String, String>> getProfile() {
+        try {
+            UserProfileResponse profile = userProfileService.getMyProfile();
+            String json = new ObjectMapper().writeValueAsString(profile);
+            return ResponseEntity.ok(Collections.singletonMap("payload", EncryptionUtil.encrypt(json)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
+        }
     }
 
     // Cập nhật thông tin cá nhân
     @PutMapping
-    public ResponseEntity<?> updateProfile(@RequestBody UserProfileUpdateRequest request) {
+    public ResponseEntity<Map<String, String>> updateProfile(@RequestBody Map<String, String> requestMap) {
         try {
+            String decrypted = EncryptionUtil.decrypt(requestMap.get("payload"));
+            UserProfileUpdateRequest request = new ObjectMapper().readValue(decrypted, UserProfileUpdateRequest.class);
             UserProfileResponse updatedProfile = userProfileService.updateMyProfile(request);
-            return ResponseEntity.ok(updatedProfile);
+            String json = new ObjectMapper().writeValueAsString(updatedProfile);
+            return ResponseEntity.ok(Collections.singletonMap("payload", EncryptionUtil.encrypt(json)));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
         }
